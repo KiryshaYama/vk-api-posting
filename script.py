@@ -2,7 +2,7 @@ import requests
 import os
 import dotenv
 
-from bs4 import BeautifulSoup
+from random import Random
 from urllib.parse import urljoin, urlparse
 
 
@@ -13,18 +13,17 @@ def check_for_errors(response):
 
 
 def get_random_comics_info():
-    url = 'https://c.xkcd.com/random/comic/'
+    url = 'https://xkcd.com/info.0.json'
     response = requests.get(url)
     response.raise_for_status()
-    soup = BeautifulSoup(response.text, 'lxml')
-    img_json_url = urljoin(
-        soup.select_one(
-            'meta[property="og:url"]')["content"], 'info.0.json')
-    response = requests.get(img_json_url)
+    last_comic_data = response.json()
+    comic_count = last_comic_data['num']
+    index = Random().randint(1, comic_count)
+    url = f'https://xkcd.com/{index}/info.0.json'
+    response = requests.get(url)
     response.raise_for_status()
-    alt = response.json()['alt']
-    img_url = response.json()['img']
-    return alt, img_url
+    comic_data = response.json()
+    return comic_data['alt'], comic_data['img']
 
 
 def download_img(img_url):
