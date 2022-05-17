@@ -7,6 +7,7 @@ from urllib.parse import urljoin, urlparse
 
 
 def check_for_errors(response):
+    response.raise_for_status()
     if 'error' in response.json():
         print(response.json()['error'])
         raise requests.HTTPError
@@ -63,12 +64,13 @@ def upload_img(response, img_name, access_token, api_version):
 
 
 def save_wall_photo(response, group_id, access_token, api_version):
+    photo_properties = response.json()
     params = {
         'group_id': group_id,
-        'photo': response.json()['photo'],
-        'server': response.json()['server'],
+        'photo': photo_properties['photo'],
+        'server': photo_properties['server'],
 
-        'hash': response.json()['hash'],
+        'hash': photo_properties['hash'],
         'access_token': access_token,
         'v': api_version
     }
@@ -81,14 +83,14 @@ def save_wall_photo(response, group_id, access_token, api_version):
 
 
 def wall_post(response, alt, group_id, access_token, api_version):
-    attachments = 'photo'\
-                  + str(response.json()['response'][0]['owner_id'])+'_'\
-                  + str(response.json()['response'][0]['id'])
+    wall_post_properties = response.json()
+    photo_owner_id = str(wall_post_properties['response'][0]['owner_id'])
+    photo_id = str(wall_post_properties['response'][0]['id'])
     params = {
         'owner_id': -group_id,
         'from_group': 1,
         'message': alt,
-        'attachments': attachments,
+        'attachments': f'photo{photo_owner_id}_{photo_id}',
         'access_token': access_token,
         'v': api_version
     }
