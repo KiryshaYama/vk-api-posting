@@ -82,7 +82,7 @@ def save_wall_photo(response, group_id, access_token, api_version):
     return response
 
 
-def wall_post(response, alt, group_id, access_token, api_version):
+def publish_wall_post(response, alt, group_id, access_token, api_version):
     wall_post_properties = response.json()
     photo_owner_id = str(wall_post_properties['response'][0]['owner_id'])
     photo_id = str(wall_post_properties['response'][0]['id'])
@@ -113,7 +113,7 @@ def main():
     img_name = os.path.basename(urlparse(img_url).path)
     response = upload_img(response, img_name, access_token, api_version)
     response = save_wall_photo(response, group_id, access_token, api_version)
-    wall_post(response, alt, group_id, access_token, api_version)
+    publish_wall_post(response, alt, group_id, access_token, api_version)
     os.remove(img_name)
 
 
