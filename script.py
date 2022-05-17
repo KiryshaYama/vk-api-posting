@@ -30,9 +30,7 @@ def get_random_comics_info():
 def download_img(img_url):
     response = requests.get(img_url)
     response.raise_for_status()
-    img_name = os.path.basename(urlparse(img_url).path)
-    img_path = os.path.join(img_name)
-    with open(img_path, 'wb') as file:
+    with open('xkcd.png', 'wb') as file:
         file.write(response.content)
 
 
@@ -105,12 +103,14 @@ def main():
     api_version = os.getenv('API_VERSION')
     alt, img_url = get_random_comics_info()
     download_img(img_url)
-    upload_url = get_upload_url(group_id, access_token, api_version)
-    img_name = os.path.basename(urlparse(img_url).path)
-    photo_properties = upload_img(upload_url, img_name, access_token, api_version)
-    saved_photo_name = save_wall_photo(photo_properties, group_id, access_token, api_version)
-    publish_wall_post(saved_photo_name, alt, group_id, access_token, api_version)
-    os.remove(img_name)
+    try:
+        upload_url = get_upload_url(group_id, access_token, api_version)
+        img_name = 'xkcd.png'
+        photo_properties = upload_img(upload_url, img_name, access_token, api_version)
+        saved_photo_name = save_wall_photo(photo_properties, group_id, access_token, api_version)
+        publish_wall_post(saved_photo_name, alt, group_id, access_token, api_version)
+    finally:
+        os.remove('xkcd.png')
 
 
 if __name__ == '__main__':
