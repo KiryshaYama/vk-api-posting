@@ -8,9 +8,11 @@ from urllib.parse import urljoin, urlparse
 
 def check_for_errors(response):
     response.raise_for_status()
-    if 'error' in response.json():
-        print(response.json()['error'])
+    response = response.json()
+    if 'error' in response:
+        print(response['error'])
         raise requests.HTTPError
+    return response
 
 
 def get_random_comics_info():
@@ -44,8 +46,8 @@ def get_upload_url(group_id, access_token, api_version):
         'https://api.vk.com/method/photos.getWallUploadServer',
         params=params
     )
-    check_for_errors(response)
-    return response.json()['response']['upload_url']
+    response = check_for_errors(response)
+    return response['response']['upload_url']
 
 
 def upload_img(upload_url, img_name, access_token, api_version):
@@ -56,8 +58,8 @@ def upload_img(upload_url, img_name, access_token, api_version):
             'v': api_version
         }
         response = requests.post(upload_url, files=files)
-        check_for_errors(response)
-        return response.json()
+        response = check_for_errors(response)
+        return response
 
 
 def save_wall_photo(photo_properties, group_id, access_token, api_version):
@@ -74,8 +76,8 @@ def save_wall_photo(photo_properties, group_id, access_token, api_version):
         'https://api.vk.com/method/photos.saveWallPhoto',
         params=params
     )
-    check_for_errors(response)
-    result = response.json()['response'][0]
+    response = check_for_errors(response)
+    result = response['response'][0]
     return f"photo{result['owner_id']}_{result['id']}"
 
 
@@ -93,7 +95,6 @@ def publish_wall_post(saved_photo_name, alt, group_id, access_token, api_version
         params=params
     )
     check_for_errors(response)
-    print('Comics posted')
 
 
 def main():
@@ -109,6 +110,7 @@ def main():
         photo_properties = upload_img(upload_url, img_name, access_token, api_version)
         saved_photo_name = save_wall_photo(photo_properties, group_id, access_token, api_version)
         publish_wall_post(saved_photo_name, alt, group_id, access_token, api_version)
+        print('Comics posted')
     finally:
         os.remove('xkcd.png')
 
