@@ -1,16 +1,16 @@
 import requests
 import os
 import dotenv
+import logging
 
 from random import Random
-from urllib.parse import urljoin, urlparse
 
 
 def check_for_errors(response):
     response.raise_for_status()
     response = response.json()
     if 'error' in response:
-        print(response['error'])
+        logging.error(response['error'])
         raise requests.HTTPError
     return response
 
